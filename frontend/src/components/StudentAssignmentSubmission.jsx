@@ -1,6 +1,34 @@
 import { useState, useEffect } from 'react';
 import './StudentAssignmentSubmission.css';
 
+// Static simulated AI logs (identical for all students)
+const SIMULATED_AI_LOGS = [
+  {
+    tool_name: 'ChatGPT',
+    description: 'Used to brainstorm solution structure for assignment tasks.',
+    purpose: 'Clarified possible implementation approaches before coding.',
+    prompt_text: 'How should I structure a React component that fetches assignment data and handles submission states?',
+    answer_text: 'Use useEffect for fetching, keep separate loading/error/success states, and submit through an async handler with guarded error handling.',
+    duration_minutes: 12
+  },
+  {
+    tool_name: 'GitHub Copilot',
+    description: 'Used while writing backend route handlers.',
+    purpose: 'Accelerated boilerplate creation and improved consistency in response handling.',
+    prompt_text: 'Generate an Express POST route for assignment submission with validation and JSON responses.',
+    answer_text: 'Provided a route skeleton with required field checks, database insert flow, and 4xx/5xx response patterns.',
+    duration_minutes: 8
+  },
+  {
+    tool_name: 'ChatGPT',
+    description: 'Used to review wording and clarity of the final submission text.',
+    purpose: 'Improved readability and confidence in the submitted explanation.',
+    prompt_text: 'Suggest concise wording for explaining implementation tradeoffs in a student assignment submission.',
+    answer_text: 'Use short sections: decision, reason, impact; avoid repeated wording and keep examples concrete.',
+    duration_minutes: 5
+  }
+];
+
 export default function StudentAssignmentSubmission() {
   const [assignments, setAssignments] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
@@ -9,6 +37,8 @@ export default function StudentAssignmentSubmission() {
   const [success, setSuccess] = useState('');
   const [studentId, setStudentId] = useState('student_001');
   const [submitted, setSubmitted] = useState(false);
+  const [generatedLogs, setGeneratedLogs] = useState([]);
+  const [manualLogs, setManualLogs] = useState([]);
 
   const [formData, setFormData] = useState({
     ai_logs: [
@@ -60,6 +90,8 @@ export default function StudentAssignmentSubmission() {
   const handleAssignmentSelect = (assignment) => {
     setSelectedAssignment(assignment);
     setSubmitted(false);
+    setGeneratedLogs([]);
+    setManualLogs([]);
     setSuccess('');
     setError('');
     setFormData({
@@ -114,12 +146,8 @@ export default function StudentAssignmentSubmission() {
     setError('');
     setSuccess('');
 
-    // Validate AI logs
+    // Validate AI logs if any are being submitted
     const validLogs = formData.ai_logs.filter(log => log.tool_name && log.tool_name.trim());
-    if (validLogs.length === 0) {
-      setError('At least one AI usage log with tool name is required');
-      return;
-    }
 
     setIsLoading(true);
 
@@ -131,7 +159,7 @@ export default function StudentAssignmentSubmission() {
         },
         body: JSON.stringify({
           student_id: studentId,
-          ai_logs: formData.ai_logs
+          ai_logs: validLogs
         })
       });
 
@@ -152,7 +180,13 @@ export default function StudentAssignmentSubmission() {
         throw new Error('Unexpected response format while submitting assignment');
       }
 
-      setSuccess(`Assignment "${selectedAssignment.title}" submitted successfully with ${data.ai_logs.length} AI usage log(s)!`);
+      // Separate manual and simulated logs for display
+      const manual = data.manual_ai_logs || [];
+      const simulated = data.simulated_ai_logs || [];
+      
+      setManualLogs(manual);
+      setGeneratedLogs(simulated);
+      setSuccess(`Assignment "${selectedAssignment.title}" submitted successfully. ${manual.length} manual log(s) and ${simulated.length} simulated AI usage log(s) were collected.`);
       setSubmitted(true);
     } catch (err) {
       console.error('Error submitting assignment:', err);
@@ -164,6 +198,8 @@ export default function StudentAssignmentSubmission() {
 
   const handleBackToList = () => {
     setSelectedAssignment(null);
+    setGeneratedLogs([]);
+    setManualLogs([]);
     setError('');
     setSuccess('');
   };
@@ -234,6 +270,41 @@ export default function StudentAssignmentSubmission() {
       {submitted ? (
         <div className="success-container">
           {success && <div className="success-message">{success}</div>}
+
+          {manualLogs.length > 0 && (
+            <div className="logs-container">
+              <h2>Your AI Usage Logs</h2>
+              <p className="section-description">
+                These are the AI usage logs you manually provided.
+              </p>
+
+              {manualLogs.map((log) => (
+                <div key={log.id} className="log-entry">
+                  <p><strong>Tool:</strong> {log.tool_name}</p>
+                  {log.description && <p><strong>Context:</strong> {log.description}</p>}
+                  {log.purpose && <p><strong>Results:</strong> {log.purpose}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {generatedLogs.length > 0 && (
+            <div className="logs-container">
+              <h2>Automatically Collected AI Usage Logs</h2>
+              <p className="section-description">
+                These logs are simulated interactions that are identical for all students.
+              </p>
+
+              {generatedLogs.map((log) => (
+                <div key={log.id} className="log-entry">
+                  <p><strong>Tool:</strong> {log.tool_name}</p>
+                  {log.prompt_text && <p><strong>Prompt:</strong> {log.prompt_text}</p>}
+                  {log.answer_text && <p><strong>Answer:</strong> {log.answer_text}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+
           <button className="back-button" onClick={handleBackToList}>
             Submit Another Assignment
           </button>
@@ -244,9 +315,9 @@ export default function StudentAssignmentSubmission() {
 
           <div className="form-section">
             <div className="ai-logs-header">
-              <h2>AI Usage Logs</h2>
+              <h2>Manual AI Usage Logs (Optional)</h2>
               <p className="section-description">
-                Document all AI tools you used during this assignment. This helps track your AI usage.
+                Optionally document any AI tools you used during this assignment.
               </p>
             </div>
 
@@ -255,14 +326,13 @@ export default function StudentAssignmentSubmission() {
                 <div className="log-number">Log #{index + 1}</div>
 
                 <div className="form-group">
-                  <label htmlFor={`tool-name-${index}`}>AI Tool Used *</label>
+                  <label htmlFor={`tool-name-${index}`}>AI Tool Used</label>
                   <input
                     type="text"
                     id={`tool-name-${index}`}
                     value={log.tool_name}
                     onChange={(e) => handleAILogChange(index, 'tool_name', e.target.value)}
                     placeholder="e.g., ChatGPT, GitHub Copilot, Claude, etc."
-                    required
                   />
                 </div>
 
@@ -307,6 +377,40 @@ export default function StudentAssignmentSubmission() {
             >
               + Add Another AI Usage Log
             </button>
+          </div>
+
+          <div className="form-section">
+            <div className="auto-logs-section">
+              <h2>Automatic AI Usage Logs</h2>
+              <p className="section-description">
+                These simulated AI interactions will be automatically attached to your submission. All students receive the same logs.
+              </p>
+              
+              {SIMULATED_AI_LOGS.map((log, index) => (
+                <div key={index} className="simulated-log-display">
+                  <div className="log-header">
+                    <strong>{log.tool_name}</strong>
+                    <span className="log-meta">{log.duration_minutes} min</span>
+                  </div>
+                  
+                  <div className="log-content">
+                    <p className="log-description"><strong>Context:</strong> {log.description}</p>
+                    
+                    <div className="interaction-block">
+                      <p className="interaction-label"><strong>Prompt:</strong></p>
+                      <p className="interaction-text">{log.prompt_text}</p>
+                    </div>
+                    
+                    <div className="interaction-block">
+                      <p className="interaction-label"><strong>Answer:</strong></p>
+                      <p className="interaction-text">{log.answer_text}</p>
+                    </div>
+                    
+                    <p className="log-purpose"><strong>Result:</strong> {log.purpose}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <button type="submit" disabled={isLoading} className="submit-button">

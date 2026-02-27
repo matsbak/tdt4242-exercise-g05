@@ -2,6 +2,33 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+const SIMULATED_AI_USAGE_LOGS = [
+  {
+    tool_name: 'ChatGPT',
+    description: 'Used to brainstorm solution structure for assignment tasks.',
+    purpose: 'Clarified possible implementation approaches before coding.',
+    prompt_text: 'How should I structure a React component that fetches assignment data and handles submission states?',
+    answer_text: 'Use useEffect for fetching, keep separate loading/error/success states, and submit through an async handler with guarded error handling.',
+    duration_minutes: 12
+  },
+  {
+    tool_name: 'GitHub Copilot',
+    description: 'Used while writing backend route handlers.',
+    purpose: 'Accelerated boilerplate creation and improved consistency in response handling.',
+    prompt_text: 'Generate an Express POST route for assignment submission with validation and JSON responses.',
+    answer_text: 'Provided a route skeleton with required field checks, database insert flow, and 4xx/5xx response patterns.',
+    duration_minutes: 8
+  },
+  {
+    tool_name: 'ChatGPT',
+    description: 'Used to review wording and clarity of the final submission text.',
+    purpose: 'Improved readability and confidence in the submitted explanation.',
+    prompt_text: 'Suggest concise wording for explaining implementation tradeoffs in a student assignment submission.',
+    answer_text: 'Use short sections: decision, reason, impact; avoid repeated wording and keep examples concrete.',
+    duration_minutes: 5
+  }
+];
+
 // Create assignment
 router.post('/', (req, res) => {
   const {
@@ -191,9 +218,9 @@ router.post('/:id/submit', (req, res) => {
   const { student_id, submission_text, ai_logs } = req.body;
 
   // Validate required fields
-  if (!student_id || !Array.isArray(ai_logs)) {
+  if (!student_id) {
     return res.status(400).json({
-      error: 'Missing required fields: student_id and ai_logs array'
+      error: 'Missing required field: student_id'
     });
   }
 
@@ -218,39 +245,69 @@ router.post('/:id/submit', (req, res) => {
       submission_text || null
     );
 
-    // Create AI logs for this submission
-    const aiLogStmt = db.prepare(`
-      INSERT INTO ai_logs (assignment_id, student_id, tool_name, description, purpose, duration_minutes)
-      VALUES (?, ?, ?, ?, ?, ?)
+    // Create manual AI logs for this submission (if any were provided)
+    const manualAiLogStmt = db.prepare(`
+      INSERT INTO ai_logs (assignment_id, student_id, tool_name, description, purpose, is_simulated)
+      VALUES (?, ?, ?, ?, ?, 0)
     `);
 
-    ai_logs.forEach(log => {
-      aiLogStmt.run(
+    if (Array.isArray(ai_logs) && ai_logs.length > 0) {
+      ai_logs.forEach((log) => {
+        if (log.tool_name && log.tool_name.trim()) {
+          manualAiLogStmt.run(
+            id,
+            student_id,
+            log.tool_name,
+            log.description || null,
+            log.purpose || null
+          );
+        }
+      });
+    }
+
+    // Create simulated static AI logs for this submission
+    const simulatedAiLogStmt = db.prepare(`
+      INSERT INTO ai_logs (assignment_id, student_id, tool_name, description, purpose, prompt_text, answer_text, duration_minutes, is_simulated)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+    `);
+
+    SIMULATED_AI_USAGE_LOGS.forEach((log) => {
+      simulatedAiLogStmt.run(
         id,
         student_id,
-        log.tool_name || null,
-        log.description || null,
-        log.purpose || null,
-        log.duration_minutes || null
+        log.tool_name,
+        log.description,
+        log.purpose,
+        log.prompt_text,
+        log.answer_text,
+        log.duration_minutes
       );
     });
 
-    // Return submission with AI logs
+    // Return submission with separated logs
     const submission = db.prepare(
       'SELECT * FROM submissions WHERE id = ?'
     ).get(submissionResult.lastInsertRowid);
 
-    const logs = db.prepare(`
-      SELECT id, tool_name, description, purpose, duration_minutes, created_at
+    const manualLogs = db.prepare(`
+      SELECT id, tool_name, description, purpose, created_at
       FROM ai_logs
-      WHERE assignment_id = ? AND student_id = ?
+      WHERE assignment_id = ? AND student_id = ? AND is_simulated = 0
       ORDER BY created_at DESC
     `).all(id, student_id);
 
-    console.log('Assignment submitted with AI logs:', { submission, logs });
+    const simulatedLogs = db.prepare(`
+      SELECT id, tool_name, description, purpose, prompt_text, answer_text, duration_minutes, created_at
+      FROM ai_logs
+      WHERE assignment_id = ? AND student_id = ? AND is_simulated = 1
+      ORDER BY created_at DESC
+    `).all(id, student_id);
+
+    console.log('Assignment submitted with manual and simulated AI logs:', { submission, manualLogs, simulatedLogs });
     res.status(201).json({
       submission,
-      ai_logs: logs
+      manual_ai_logs: manualLogs,
+      simulated_ai_logs: simulatedLogs
     });
   } catch (error) {
     console.error('Error submitting assignment:', error);
@@ -271,7 +328,7 @@ router.get('/:id/submissions/:student_id', (req, res) => {
     `).get(id, student_id);
 
     const ai_logs = db.prepare(`
-      SELECT id, tool_name, description, purpose, duration_minutes, created_at
+      SELECT id, tool_name, description, purpose, prompt_text, answer_text, duration_minutes, created_at
       FROM ai_logs
       WHERE assignment_id = ? AND student_id = ?
       ORDER BY created_at DESC

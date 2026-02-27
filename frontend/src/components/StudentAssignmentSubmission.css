@@ -335,6 +335,148 @@
   margin-bottom: 2rem;
 }
 
+.logs-container {
+  text-align: left;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.logs-container h2 {
+  margin: 0 0 0.75rem 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.log-entry {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-left: 4px solid #0066cc;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.log-entry:last-child {
+  margin-bottom: 0;
+}
+
+.log-entry p {
+  margin: 0 0 0.5rem 0;
+  color: #555;
+  line-height: 1.4;
+}
+
+.log-entry p:last-child {
+  margin-bottom: 0;
+}
+
+.auto-logs-section {
+  background-color: #f0f7ff;
+  border: 1px solid #b3d9ff;
+  border-left: 4px solid #0066cc;
+  border-radius: 4px;
+  padding: 1.5rem;
+}
+
+.auto-logs-section h2 {
+  margin: 0 0 0.75rem 0;
+  color: #333;
+}
+
+.auto-logs-section .section-description {
+  margin: 0.5rem 0 1.5rem 0;
+}
+
+.simulated-log-display {
+  background-color: #f0f7ff;
+  border: 1px solid #b3d9ff;
+  border-left: 4px solid #0066cc;
+  border-radius: 4px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.simulated-log-display:last-child {
+  margin-bottom: 0;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #b3d9ff;
+}
+
+.log-header strong {
+  font-size: 1rem;
+  color: #0052a3;
+}
+
+.log-meta {
+  background-color: #e6f2ff;
+  color: #0052a3;
+  padding: 0.3rem 0.6rem;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.log-content {
+  color: #333;
+  line-height: 1.6;
+}
+
+.log-description {
+  margin: 0 0 1rem 0;
+  color: #555;
+}
+
+.interaction-block {
+  background-color: white;
+  border: 1px solid #d9e9f7;
+  border-radius: 3px;
+  padding: 0.875rem;
+  margin-bottom: 0.75rem;
+}
+
+.interaction-label {
+  margin: 0 0 0.4rem 0;
+  color: #0052a3;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.interaction-text {
+  margin: 0;
+  color: #333;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+.log-purpose {
+  margin: 1rem 0 0 0;
+  color: #555;
+}
+
+.auto-logs-note {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-left: 4px solid #0066cc;
+  border-radius: 4px;
+  padding: 1.25rem;
+}
+
+.auto-logs-note p {
+  margin: 0;
+  color: #555;
+  line-height: 1.5;
+}
+
 .loading,
 .no-content {
   text-align: center;

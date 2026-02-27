@@ -35,7 +35,10 @@ function initializeDatabase() {
       tool_name TEXT NOT NULL,
       description TEXT,
       purpose TEXT,
+      prompt_text TEXT,
+      answer_text TEXT,
       duration_minutes INTEGER,
+      is_simulated BOOLEAN DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE CASCADE
     )
@@ -66,6 +69,18 @@ function initializeDatabase() {
   `);
 }
 
+function ensureColumnExists(tableName, columnName, columnDefinition) {
+  const columns = db.prepare(`PRAGMA table_info(${tableName})`).all();
+  const hasColumn = columns.some((column) => column.name === columnName);
+
+  if (!hasColumn) {
+    db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDefinition}`);
+  }
+}
+
 initializeDatabase();
+ensureColumnExists('ai_logs', 'prompt_text', 'TEXT');
+ensureColumnExists('ai_logs', 'answer_text', 'TEXT');
+ensureColumnExists('ai_logs', 'is_simulated', 'BOOLEAN DEFAULT 0');
 
 module.exports = db;
