@@ -1,0 +1,263 @@
+.instructor-dashboard {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+.instructor-dashboard h1 {
+  color: #333;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+.dashboard-section {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.dashboard-header h2 {
+  color: #333;
+  margin: 0;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #0066cc;
+  padding-bottom: 1rem;
+  flex: 1;
+}
+
+.refresh-button {
+  padding: 0.6rem 1.2rem;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.refresh-button:hover:not(:disabled) {
+  background-color: #0052a3;
+}
+
+.refresh-button:disabled {
+  background-color: #99ccff;
+  cursor: not-allowed;
+}
+
+.course-filter {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+
+.course-filter label {
+  font-weight: 600;
+  color: #333;
+}
+
+.filter-input-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+}
+
+.course-filter input[type="text"] {
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  flex: 1;
+  min-width: 200px;
+  transition: border-color 0.2s;
+}
+
+.course-filter input[type="text"]:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.clear-filter-button {
+  padding: 0.6rem 1rem;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.clear-filter-button:hover {
+  background-color: #e0e0e0;
+  border-color: #999;
+}
+
+.filter-status {
+  margin: 0.5rem 0 0 0;
+  color: #666;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.assignments-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.assignment-card {
+  padding: 1.5rem;
+  background: #f9f9f9;
+  border-left: 4px solid #0066cc;
+  border-radius: 4px;
+  transition: box-shadow 0.2s;
+}
+
+.assignment-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.assignment-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1.25rem;
+}
+
+.assignment-card .course-id {
+  margin: 0 0 0.5rem 0;
+  color: #666;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.assignment-card .description {
+  margin: 0 0 1rem 0;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.requirements {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.requirement-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background-color: #e3f2fd;
+  color: #0066cc;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.requirement-description {
+  margin: 0;
+  padding: 0.75rem;
+  background-color: #f5f5f5;
+  border-left: 3px solid #0066cc;
+  border-radius: 3px;
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+.no-content {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+.error-message {
+  padding: 1rem;
+  background-color: #fee;
+  border-left: 4px solid #c33;
+  color: #722;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .instructor-dashboard {
+    padding: 1rem;
+  }
+
+  .instructor-dashboard h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .dashboard-section {
+    padding: 1.5rem;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dashboard-header h2 {
+    flex: unset;
+  }
+
+  .refresh-button {
+    width: 100%;
+  }
+
+  .course-filter {
+    flex-direction: column;
+  }
+
+  .course-filter label {
+    width: 100%;
+  }
+
+  .filter-input-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .course-filter input[type="text"] {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .clear-filter-button {
+    width: 100%;
+  }
+
+  .assignment-card {
+    padding: 1rem;
+  }
+}
