@@ -23,6 +23,14 @@ export default function Navigation({ currentPage, onNavigate }) {
               Create Assignment
             </button>
           </li>
+          <li>
+            <button
+              className={`nav-button ${currentPage === 'submit' ? 'active' : ''}`}
+              onClick={() => onNavigate('submit')}
+            >
+              Submit Assignment
+            </button>
+          </li>
         </ul>
       </div>
     </nav>

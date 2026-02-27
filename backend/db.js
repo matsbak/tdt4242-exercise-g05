@@ -52,6 +52,18 @@ function initializeDatabase() {
       FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE CASCADE
     )
   `);
+
+  // Submissions table (for tracking student submissions)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS submissions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      assignment_id INTEGER NOT NULL,
+      student_id TEXT NOT NULL,
+      submission_text TEXT,
+      submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE CASCADE
+    )
+  `);
 }
 
 initializeDatabase();

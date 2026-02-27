@@ -185,4 +185,124 @@ router.delete('/:id', (req, res) => {
   }
 });
 
+// Submit assignment with AI logs
+router.post('/:id/submit', (req, res) => {
+  const { id } = req.params;
+  const { student_id, submission_text, ai_logs } = req.body;
+
+  // Validate required fields
+  if (!student_id || !Array.isArray(ai_logs)) {
+    return res.status(400).json({
+      error: 'Missing required fields: student_id and ai_logs array'
+    });
+  }
+
+  try {
+    const assignment = db.prepare(
+      'SELECT * FROM assignments WHERE id = ?'
+    ).get(id);
+
+    if (!assignment) {
+      return res.status(404).json({ error: 'Assignment not found' });
+    }
+
+    // Create submission
+    const submissionStmt = db.prepare(`
+      INSERT INTO submissions (assignment_id, student_id, submission_text)
+      VALUES (?, ?, ?)
+    `);
+
+    const submissionResult = submissionStmt.run(
+      id,
+      student_id,
+      submission_text || null
+    );
+
+    // Create AI logs for this submission
+    const aiLogStmt = db.prepare(`
+      INSERT INTO ai_logs (assignment_id, student_id, tool_name, description, purpose, duration_minutes)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
+    ai_logs.forEach(log => {
+      aiLogStmt.run(
+        id,
+        student_id,
+        log.tool_name || null,
+        log.description || null,
+        log.purpose || null,
+        log.duration_minutes || null
+      );
+    });
+
+    // Return submission with AI logs
+    const submission = db.prepare(
+      'SELECT * FROM submissions WHERE id = ?'
+    ).get(submissionResult.lastInsertRowid);
+
+    const logs = db.prepare(`
+      SELECT id, tool_name, description, purpose, duration_minutes, created_at
+      FROM ai_logs
+      WHERE assignment_id = ? AND student_id = ?
+      ORDER BY created_at DESC
+    `).all(id, student_id);
+
+    console.log('Assignment submitted with AI logs:', { submission, logs });
+    res.status(201).json({
+      submission,
+      ai_logs: logs
+    });
+  } catch (error) {
+    console.error('Error submitting assignment:', error);
+    res.status(500).json({ error: 'Failed to submit assignment' });
+  }
+});
+
+// Get submission for a student
+router.get('/:id/submissions/:student_id', (req, res) => {
+  const { id, student_id } = req.params;
+
+  try {
+    const submission = db.prepare(`
+      SELECT * FROM submissions
+      WHERE assignment_id = ? AND student_id = ?
+      ORDER BY submitted_at DESC
+      LIMIT 1
+    `).get(id, student_id);
+
+    const ai_logs = db.prepare(`
+      SELECT id, tool_name, description, purpose, duration_minutes, created_at
+      FROM ai_logs
+      WHERE assignment_id = ? AND student_id = ?
+      ORDER BY created_at DESC
+    `).all(id, student_id);
+
+    res.json({
+      submission: submission || null,
+      ai_logs
+    });
+  } catch (error) {
+    console.error('Error fetching submission:', error);
+    res.status(500).json({ error: 'Failed to fetch submission' });
+  }
+});
+
+// Get all submissions for an assignment
+router.get('/:id/submissions', (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const submissions = db.prepare(`
+      SELECT * FROM submissions
+      WHERE assignment_id = ?
+      ORDER BY submitted_at DESC
+    `).all(id);
+
+    res.json(submissions);
+  } catch (error) {
+    console.error('Error fetching submissions:', error);
+    res.status(500).json({ error: 'Failed to fetch submissions' });
+  }
+});
+
 module.exports = router;
