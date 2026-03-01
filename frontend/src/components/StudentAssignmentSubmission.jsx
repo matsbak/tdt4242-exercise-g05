@@ -39,6 +39,8 @@ export default function StudentAssignmentSubmission() {
   const [submitted, setSubmitted] = useState(false);
   const [generatedLogs, setGeneratedLogs] = useState([]);
   const [manualLogs, setManualLogs] = useState([]);
+  const [isReviewingLogs, setIsReviewingLogs] = useState(false);
+  const [confirmedAutoLogs, setConfirmedAutoLogs] = useState(new Set(SIMULATED_AI_LOGS.map((_, i) => i)));
 
   const [formData, setFormData] = useState({
     ai_logs: [
@@ -94,6 +96,8 @@ export default function StudentAssignmentSubmission() {
     setManualLogs([]);
     setSuccess('');
     setError('');
+    setIsReviewingLogs(false);
+    setConfirmedAutoLogs(new Set(SIMULATED_AI_LOGS.map((_, i) => i)));
     setFormData({
       ai_logs: [
         {
@@ -141,15 +145,33 @@ export default function StudentAssignmentSubmission() {
     }
   };
 
+  const toggleAutoLogConfirmation = (index) => {
+    const newConfirmed = new Set(confirmedAutoLogs);
+    if (newConfirmed.has(index)) {
+      newConfirmed.delete(index);
+    } else {
+      newConfirmed.add(index);
+    }
+    setConfirmedAutoLogs(newConfirmed);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
+    // Show confirmation modal instead of submitting directly
+    setIsReviewingLogs(true);
+  };
+
+  const handleConfirmAndSubmit = async () => {
+    setError('');
+    setSuccess('');
+    setIsLoading(true);
+
     // Validate AI logs if any are being submitted
     const validLogs = formData.ai_logs.filter(log => log.tool_name && log.tool_name.trim());
-
-    setIsLoading(true);
+    const shouldConfirmAutoLogs = confirmedAutoLogs.size > 0;
 
     try {
       const response = await fetch(`/api/assignments/${selectedAssignment.id}/submit`, {
@@ -159,7 +181,8 @@ export default function StudentAssignmentSubmission() {
         },
         body: JSON.stringify({
           student_id: studentId,
-          ai_logs: validLogs
+          ai_logs: validLogs,
+          confirmed_automatic_logs: shouldConfirmAutoLogs
         })
       });
 
@@ -186,11 +209,13 @@ export default function StudentAssignmentSubmission() {
       
       setManualLogs(manual);
       setGeneratedLogs(simulated);
-      setSuccess(`Assignment "${selectedAssignment.title}" submitted successfully. ${manual.length} manual log(s) and ${simulated.length} simulated AI usage log(s) were collected.`);
+      setSuccess(`Assignment "${selectedAssignment.title}" submitted successfully. ${manual.length} manual log(s) and ${simulated.length} confirmed AI usage log(s) were included in your submission.`);
       setSubmitted(true);
+      setIsReviewingLogs(false);
     } catch (err) {
       console.error('Error submitting assignment:', err);
       setError(err.message);
+      setIsReviewingLogs(false);
     } finally {
       setIsLoading(false);
     }
@@ -249,25 +274,85 @@ export default function StudentAssignmentSubmission() {
     );
   }
 
-  return (
-    <div className="student-submission-container">
-      <button className="back-button" onClick={handleBackToList}>
-        &larr; Back to Assignments
-      </button>
+  // Show confirmation modal if reviewing logs
+  if (isReviewingLogs) {
+    return (
+      <div className="student-submission-container">
+        <div className="confirmation-modal">
+          <div className="confirmation-header">
+            <h2>Review & Confirm Automatic AI Usage Logs</h2>
+            <p className="confirmation-description">
+              These automatic AI usage logs will be attached to your assignment submission. 
+              Please review them and confirm which ones are relevant to your work.
+            </p>
+          </div>
 
-      <div className="submission-header">
-        <h1>{selectedAssignment.title}</h1>
-        <p className="course-id">Course: {selectedAssignment.course_id}</p>
-      </div>
+          <div className="auto-logs-review">
+            {SIMULATED_AI_LOGS.map((log, index) => (
+              <div key={index} className="log-review-entry">
+                <div className="log-review-header">
+                  <input
+                    type="checkbox"
+                    id={`confirm-log-${index}`}
+                    checked={confirmedAutoLogs.has(index)}
+                    onChange={() => toggleAutoLogConfirmation(index)}
+                    className="log-checkbox"
+                  />
+                  <label htmlFor={`confirm-log-${index}`} className="log-checkbox-label">
+                    <strong>{log.tool_name}</strong>
+                    <span className="log-meta">{log.duration_minutes} min</span>
+                  </label>
+                </div>
 
-      {selectedAssignment.description && (
-        <div className="assignment-description">
-          <h3>Description</h3>
-          <p>{selectedAssignment.description}</p>
+                <div className="log-review-content">
+                  <p className="log-description"><strong>Context:</strong> {log.description}</p>
+                  
+                  <div className="interaction-block">
+                    <p className="interaction-label"><strong>Prompt:</strong></p>
+                    <p className="interaction-text">{log.prompt_text}</p>
+                  </div>
+                  
+                  <div className="interaction-block">
+                    <p className="interaction-label"><strong>Answer:</strong></p>
+                    <p className="interaction-text">{log.answer_text}</p>
+                  </div>
+                  
+                  <p className="log-purpose"><strong>Result:</strong> {log.purpose}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <div className="confirmation-actions">
+            <button
+              className="cancel-button"
+              onClick={() => setIsReviewingLogs(false)}
+              disabled={isLoading}
+            >
+              Back to Edit
+            </button>
+            <button
+              className="submit-button"
+              onClick={handleConfirmAndSubmit}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Submitting...' : 'Confirm & Submit Assignment'}
+            </button>
+          </div>
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {submitted ? (
+  if (submitted) {
+    return (
+      <div className="student-submission-container">
+        <button className="back-button" onClick={handleBackToList}>
+          &larr; Back to Assignments
+        </button>
+
         <div className="success-container">
           {success && <div className="success-message">{success}</div>}
 
@@ -290,9 +375,9 @@ export default function StudentAssignmentSubmission() {
 
           {generatedLogs.length > 0 && (
             <div className="logs-container">
-              <h2>Automatically Collected AI Usage Logs</h2>
+              <h2>Confirmed Automatic AI Usage Logs</h2>
               <p className="section-description">
-                These logs are simulated interactions that are identical for all students.
+                These logs were confirmed during submission and included in your assignment.
               </p>
 
               {generatedLogs.map((log) => (
@@ -309,115 +394,137 @@ export default function StudentAssignmentSubmission() {
             Submit Another Assignment
           </button>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="submission-form">
-          {error && <div className="error-message">{error}</div>}
+      </div>
+    );
+  }
 
-          <div className="form-section">
-            <div className="ai-logs-header">
-              <h2>Manual AI Usage Logs (Optional)</h2>
-              <p className="section-description">
-                Optionally document any AI tools you used during this assignment.
-              </p>
-            </div>
+  // Show form for manual logs and submission
+  return (
+    <div className="student-submission-container">
+      <button className="back-button" onClick={handleBackToList}>
+        &larr; Back to Assignments
+      </button>
 
-            {formData.ai_logs.map((log, index) => (
-              <div key={index} className="ai-log-entry">
-                <div className="log-number">Log #{index + 1}</div>
+      <div className="submission-header">
+        <h1>{selectedAssignment.title}</h1>
+        <p className="course-id">Course: {selectedAssignment.course_id}</p>
+      </div>
 
-                <div className="form-group">
-                  <label htmlFor={`tool-name-${index}`}>AI Tool Used</label>
-                  <input
-                    type="text"
-                    id={`tool-name-${index}`}
-                    value={log.tool_name}
-                    onChange={(e) => handleAILogChange(index, 'tool_name', e.target.value)}
-                    placeholder="e.g., ChatGPT, GitHub Copilot, Claude, etc."
-                  />
-                </div>
+      {selectedAssignment.description && (
+        <div className="assignment-description">
+          <h3>Description</h3>
+          <p>{selectedAssignment.description}</p>
+        </div>
+      )}
 
-                <div className="form-group">
-                  <label htmlFor={`context-${index}`}>Context of Usage</label>
-                  <textarea
-                    id={`context-${index}`}
-                    value={log.description}
-                    onChange={(e) => handleAILogChange(index, 'description', e.target.value)}
-                    placeholder="What was the context? (e.g., debugging code, writing documentation, etc.)"
-                    rows="3"
-                  />
-                </div>
+      <form onSubmit={handleSubmit} className="submission-form">
+        {error && <div className="error-message">{error}</div>}
 
-                <div className="form-group">
-                  <label htmlFor={`purpose-${index}`}>Results of Using It</label>
-                  <textarea
-                    id={`purpose-${index}`}
-                    value={log.purpose}
-                    onChange={(e) => handleAILogChange(index, 'purpose', e.target.value)}
-                    placeholder="What were the results? How did the AI tool help? What did you use from the output?"
-                    rows="3"
-                  />
-                </div>
-
-                {formData.ai_logs.length > 1 && (
-                  <button
-                    type="button"
-                    className="remove-button"
-                    onClick={() => removeAILog(index)}
-                  >
-                    Remove This Log
-                  </button>
-                )}
-              </div>
-            ))}
-
-            <button
-              type="button"
-              className="add-log-button"
-              onClick={addAILog}
-            >
-              + Add Another AI Usage Log
-            </button>
+        <div className="form-section">
+          <div className="ai-logs-header">
+            <h2>Manual AI Usage Logs (Optional)</h2>
+            <p className="section-description">
+              Optionally document any AI tools you used during this assignment.
+            </p>
           </div>
 
-          <div className="form-section">
-            <div className="auto-logs-section">
-              <h2>Automatic AI Usage Logs</h2>
-              <p className="section-description">
-                These simulated AI interactions will be automatically attached to your submission. All students receive the same logs.
-              </p>
-              
-              {SIMULATED_AI_LOGS.map((log, index) => (
-                <div key={index} className="simulated-log-display">
-                  <div className="log-header">
-                    <strong>{log.tool_name}</strong>
-                    <span className="log-meta">{log.duration_minutes} min</span>
+          {formData.ai_logs.map((log, index) => (
+            <div key={index} className="ai-log-entry">
+              <div className="log-number">Log #{index + 1}</div>
+
+              <div className="form-group">
+                <label htmlFor={`tool-name-${index}`}>AI Tool Used</label>
+                <input
+                  type="text"
+                  id={`tool-name-${index}`}
+                  value={log.tool_name}
+                  onChange={(e) => handleAILogChange(index, 'tool_name', e.target.value)}
+                  placeholder="e.g., ChatGPT, GitHub Copilot, Claude, etc."
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor={`context-${index}`}>Context of Usage</label>
+                <textarea
+                  id={`context-${index}`}
+                  value={log.description}
+                  onChange={(e) => handleAILogChange(index, 'description', e.target.value)}
+                  placeholder="What was the context? (e.g., debugging code, writing documentation, etc.)"
+                  rows="3"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor={`purpose-${index}`}>Results of Using It</label>
+                <textarea
+                  id={`purpose-${index}`}
+                  value={log.purpose}
+                  onChange={(e) => handleAILogChange(index, 'purpose', e.target.value)}
+                  placeholder="What were the results? How did the AI tool help? What did you use from the output?"
+                  rows="3"
+                />
+              </div>
+
+              {formData.ai_logs.length > 1 && (
+                <button
+                  type="button"
+                  className="remove-button"
+                  onClick={() => removeAILog(index)}
+                >
+                  Remove This Log
+                </button>
+              )}
+            </div>
+          ))}
+
+          <button
+            type="button"
+            className="add-log-button"
+            onClick={addAILog}
+          >
+            + Add Another AI Usage Log
+          </button>
+        </div>
+
+        <div className="form-section">
+          <div className="auto-logs-section">
+            <h2>Automatic AI Usage Logs Preview</h2>
+            <p className="section-description">
+              These automatic AI usage logs will be shown for review when you submit your assignment. 
+              You will be able to confirm which ones to include in your submission.
+            </p>
+            
+            {SIMULATED_AI_LOGS.map((log, index) => (
+              <div key={index} className="simulated-log-display">
+                <div className="log-header">
+                  <strong>{log.tool_name}</strong>
+                  <span className="log-meta">{log.duration_minutes} min</span>
+                </div>
+                
+                <div className="log-content">
+                  <p className="log-description"><strong>Context:</strong> {log.description}</p>
+                  
+                  <div className="interaction-block">
+                    <p className="interaction-label"><strong>Prompt:</strong></p>
+                    <p className="interaction-text">{log.prompt_text}</p>
                   </div>
                   
-                  <div className="log-content">
-                    <p className="log-description"><strong>Context:</strong> {log.description}</p>
-                    
-                    <div className="interaction-block">
-                      <p className="interaction-label"><strong>Prompt:</strong></p>
-                      <p className="interaction-text">{log.prompt_text}</p>
-                    </div>
-                    
-                    <div className="interaction-block">
-                      <p className="interaction-label"><strong>Answer:</strong></p>
-                      <p className="interaction-text">{log.answer_text}</p>
-                    </div>
-                    
-                    <p className="log-purpose"><strong>Result:</strong> {log.purpose}</p>
+                  <div className="interaction-block">
+                    <p className="interaction-label"><strong>Answer:</strong></p>
+                    <p className="interaction-text">{log.answer_text}</p>
                   </div>
+                  
+                  <p className="log-purpose"><strong>Result:</strong> {log.purpose}</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
+        </div>
 
-          <button type="submit" disabled={isLoading} className="submit-button">
-            {isLoading ? 'Submitting...' : 'Submit Assignment'}
-          </button>
-        </form>
-      )}
+        <button type="submit" disabled={isLoading} className="submit-button">
+          {isLoading ? 'Processing...' : 'Review & Confirm Logs'}
+        </button>
+      </form>
     </div>
   );
 }

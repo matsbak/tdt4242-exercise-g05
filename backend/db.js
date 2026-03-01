@@ -39,6 +39,7 @@ function initializeDatabase() {
       answer_text TEXT,
       duration_minutes INTEGER,
       is_simulated BOOLEAN DEFAULT 0,
+      confirmed BOOLEAN DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE CASCADE
     )
@@ -82,5 +83,6 @@ initializeDatabase();
 ensureColumnExists('ai_logs', 'prompt_text', 'TEXT');
 ensureColumnExists('ai_logs', 'answer_text', 'TEXT');
 ensureColumnExists('ai_logs', 'is_simulated', 'BOOLEAN DEFAULT 0');
+ensureColumnExists('ai_logs', 'confirmed', 'BOOLEAN DEFAULT 1');
 
 module.exports = db;

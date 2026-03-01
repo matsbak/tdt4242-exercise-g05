@@ -215,7 +215,7 @@ router.delete('/:id', (req, res) => {
 // Submit assignment with AI logs
 router.post('/:id/submit', (req, res) => {
   const { id } = req.params;
-  const { student_id, submission_text, ai_logs } = req.body;
+  const { student_id, submission_text, ai_logs, confirmed_automatic_logs } = req.body;
 
   // Validate required fields
   if (!student_id) {
@@ -247,8 +247,8 @@ router.post('/:id/submit', (req, res) => {
 
     // Create manual AI logs for this submission (if any were provided)
     const manualAiLogStmt = db.prepare(`
-      INSERT INTO ai_logs (assignment_id, student_id, tool_name, description, purpose, is_simulated)
-      VALUES (?, ?, ?, ?, ?, 0)
+      INSERT INTO ai_logs (assignment_id, student_id, tool_name, description, purpose, is_simulated, confirmed)
+      VALUES (?, ?, ?, ?, ?, 0, 1)
     `);
 
     if (Array.isArray(ai_logs) && ai_logs.length > 0) {
@@ -265,24 +265,26 @@ router.post('/:id/submit', (req, res) => {
       });
     }
 
-    // Create simulated static AI logs for this submission
-    const simulatedAiLogStmt = db.prepare(`
-      INSERT INTO ai_logs (assignment_id, student_id, tool_name, description, purpose, prompt_text, answer_text, duration_minutes, is_simulated)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
-    `);
+    // Create simulated static AI logs for this submission only if confirmed
+    if (confirmed_automatic_logs === true) {
+      const simulatedAiLogStmt = db.prepare(`
+        INSERT INTO ai_logs (assignment_id, student_id, tool_name, description, purpose, prompt_text, answer_text, duration_minutes, is_simulated, confirmed)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, 1)
+      `);
 
-    SIMULATED_AI_USAGE_LOGS.forEach((log) => {
-      simulatedAiLogStmt.run(
-        id,
-        student_id,
-        log.tool_name,
-        log.description,
-        log.purpose,
-        log.prompt_text,
-        log.answer_text,
-        log.duration_minutes
-      );
-    });
+      SIMULATED_AI_USAGE_LOGS.forEach((log) => {
+        simulatedAiLogStmt.run(
+          id,
+          student_id,
+          log.tool_name,
+          log.description,
+          log.purpose,
+          log.prompt_text,
+          log.answer_text,
+          log.duration_minutes
+        );
+      });
+    }
 
     // Return submission with separated logs
     const submission = db.prepare(
