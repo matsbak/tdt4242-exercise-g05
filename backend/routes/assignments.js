@@ -215,12 +215,19 @@ router.delete('/:id', (req, res) => {
 // Submit assignment with AI logs
 router.post('/:id/submit', (req, res) => {
   const { id } = req.params;
-  const { student_id, submission_text, ai_logs, confirmed_automatic_logs } = req.body;
+  const { student_id, submission_text, ai_logs, confirmed_automatic_logs, ai_declaration } = req.body;
 
   // Validate required fields
   if (!student_id) {
     return res.status(400).json({
       error: 'Missing required field: student_id'
+    });
+  }
+
+  // Validate AI declaration is provided
+  if (!ai_declaration || !ai_declaration.trim()) {
+    return res.status(400).json({
+      error: 'AI declaration is required for assignment submission'
     });
   }
 
@@ -243,6 +250,18 @@ router.post('/:id/submit', (req, res) => {
       id,
       student_id,
       submission_text || null
+    );
+
+    // Create AI declaration for this submission
+    const declarationStmt = db.prepare(`
+      INSERT INTO ai_declarations (assignment_id, student_id, declaration_text)
+      VALUES (?, ?, ?)
+    `);
+
+    const declarationResult = declarationStmt.run(
+      id,
+      student_id,
+      ai_declaration
     );
 
     // Create manual AI logs for this submission (if any were provided)
@@ -291,6 +310,13 @@ router.post('/:id/submit', (req, res) => {
       'SELECT * FROM submissions WHERE id = ?'
     ).get(submissionResult.lastInsertRowid);
 
+    const declaration = db.prepare(`
+      SELECT * FROM ai_declarations 
+      WHERE assignment_id = ? AND student_id = ?
+      ORDER BY created_at DESC
+      LIMIT 1
+    `).get(id, student_id);
+
     const manualLogs = db.prepare(`
       SELECT id, tool_name, description, purpose, created_at
       FROM ai_logs
@@ -305,9 +331,10 @@ router.post('/:id/submit', (req, res) => {
       ORDER BY created_at DESC
     `).all(id, student_id);
 
-    console.log('Assignment submitted with manual and simulated AI logs:', { submission, manualLogs, simulatedLogs });
+    console.log('Assignment submitted with AI declaration, manual and simulated AI logs:', { submission, declaration, manualLogs, simulatedLogs });
     res.status(201).json({
       submission,
+      ai_declaration: declaration,
       manual_ai_logs: manualLogs,
       simulated_ai_logs: simulatedLogs
     });

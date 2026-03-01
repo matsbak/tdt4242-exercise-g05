@@ -41,6 +41,8 @@ export default function StudentAssignmentSubmission() {
   const [manualLogs, setManualLogs] = useState([]);
   const [isReviewingLogs, setIsReviewingLogs] = useState(false);
   const [confirmedAutoLogs, setConfirmedAutoLogs] = useState(new Set(SIMULATED_AI_LOGS.map((_, i) => i)));
+  const [aiDeclaration, setAiDeclaration] = useState('');
+  const [acknowledgedDeclaration, setAcknowledgedDeclaration] = useState(false);
 
   const [formData, setFormData] = useState({
     ai_logs: [
@@ -98,6 +100,8 @@ export default function StudentAssignmentSubmission() {
     setError('');
     setIsReviewingLogs(false);
     setConfirmedAutoLogs(new Set(SIMULATED_AI_LOGS.map((_, i) => i)));
+    setAiDeclaration('');
+    setAcknowledgedDeclaration(false);
     setFormData({
       ai_logs: [
         {
@@ -160,6 +164,12 @@ export default function StudentAssignmentSubmission() {
     setError('');
     setSuccess('');
 
+    // Validate AI declaration is filled
+    if (!aiDeclaration.trim()) {
+      setError('Please provide an AI declaration summarizing your AI usage for this assignment.');
+      return;
+    }
+
     // Show confirmation modal instead of submitting directly
     setIsReviewingLogs(true);
   };
@@ -167,6 +177,13 @@ export default function StudentAssignmentSubmission() {
   const handleConfirmAndSubmit = async () => {
     setError('');
     setSuccess('');
+
+    // Validate AI declaration acknowledgment
+    if (!acknowledgedDeclaration) {
+      setError('Please check the box to acknowledge your AI declaration before submitting.');
+      return;
+    }
+
     setIsLoading(true);
 
     // Validate AI logs if any are being submitted
@@ -182,7 +199,8 @@ export default function StudentAssignmentSubmission() {
         body: JSON.stringify({
           student_id: studentId,
           ai_logs: validLogs,
-          confirmed_automatic_logs: shouldConfirmAutoLogs
+          confirmed_automatic_logs: shouldConfirmAutoLogs,
+          ai_declaration: aiDeclaration
         })
       });
 
@@ -321,6 +339,29 @@ export default function StudentAssignmentSubmission() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="declaration-review-section">
+            <h2>Your AI Declaration</h2>
+            <p className="section-description">
+              Please review your AI declaration statement below:
+            </p>
+            <div className="declaration-display">
+              {aiDeclaration}
+            </div>
+            <div className="declaration-acknowledgment">
+              <label className="acknowledgment-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={acknowledgedDeclaration}
+                  onChange={(e) => setAcknowledgedDeclaration(e.target.checked)}
+                  className="acknowledgment-checkbox"
+                />
+                <span className="acknowledgment-text">
+                  I acknowledge that this declaration accurately summarizes my AI usage for this assignment.
+                </span>
+              </label>
+            </div>
           </div>
 
           {error && <div className="error-message">{error}</div>}
@@ -484,6 +525,26 @@ export default function StudentAssignmentSubmission() {
           >
             + Add Another AI Usage Log
           </button>
+        </div>
+
+        <div className="form-section">
+          <div className="ai-declaration-section">
+            <h2>AI Declaration (Required)</h2>
+            <p className="section-description">
+              Provide a summary statement of your total AI usage for this assignment. 
+              This should summarize how you used AI tools, what assistance they provided, 
+              and how you integrated or evaluated their output.
+            </p>
+            <textarea
+              id="ai-declaration"
+              className="ai-declaration-input"
+              value={aiDeclaration}
+              onChange={(e) => setAiDeclaration(e.target.value)}
+              placeholder="Example: I used ChatGPT to help structure my code components and GitHub Copilot for code completion. I reviewed all AI-generated suggestions and tested them thoroughly before including them in my work. I also used ChatGPT to help improve my documentation clarity."
+              rows="6"
+              required
+            />
+          </div>
         </div>
 
         <div className="form-section">
