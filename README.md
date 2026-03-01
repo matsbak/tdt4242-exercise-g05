@@ -6,3 +6,27 @@ Project in course
 group 5.
 
 The AI tool used for the exercise is [GitHub Copilot](https://github.com/features/copilot).
+
+### How to run
+
+Backend (integrated database):
+
+```bash
+npm install
+cd backend
+node index.js
+```
+
+Frontend:
+
+```bash
+npm install
+cd frontend
+npm run dev
+```
+
+### Technology stack
+
+- SQLite (better-sqlite3)
+- Express.js
+- React.js (Vite)
