@@ -391,4 +391,150 @@ router.get('/:id/submissions', (req, res) => {
   }
 });
 
+// Get all student submissions with AI logs and declarations for an assignment
+router.get('/:id/student-logs', (req, res) => {
+  const { id } = req.params;
+
+  console.log('Fetching student logs for assignment:', id);
+
+  try {
+    // First, verify assignment exists
+    const assignment = db.prepare('SELECT * FROM assignments WHERE id = ?').get(id);
+    console.log('Assignment query result:', assignment);
+    
+    if (!assignment) {
+      return res.status(404).json({ error: 'Assignment not found' });
+    }
+
+    // Get all unique students who submitted this assignment
+    const submissions = db.prepare(`
+      SELECT DISTINCT student_id FROM submissions
+      WHERE assignment_id = ?
+      ORDER BY student_id ASC
+    `).all(id);
+
+    console.log(`Found ${submissions.length} unique students with submissions for assignment ${id}`);
+
+    // Build detailed data for each student
+    const studentLogs = submissions.map((submissionRow) => {
+      const student_id = submissionRow.student_id;
+
+      try {
+        // Get the submission
+        const submission = db.prepare(`
+          SELECT * FROM submissions
+          WHERE assignment_id = ? AND student_id = ?
+          ORDER BY submitted_at DESC
+          LIMIT 1
+        `).get(id, student_id);
+
+        // Get AI declaration
+        const declaration = db.prepare(`
+          SELECT * FROM ai_declarations
+          WHERE assignment_id = ? AND student_id = ?
+          ORDER BY created_at DESC
+          LIMIT 1
+        `).get(id, student_id);
+
+        // Get manual AI logs
+        const manual_logs = db.prepare(`
+          SELECT id, tool_name, description, purpose, created_at
+          FROM ai_logs
+          WHERE assignment_id = ? AND student_id = ? AND is_simulated = 0
+          ORDER BY created_at ASC
+        `).all(id, student_id);
+
+        // Get simulated AI logs
+        const simulated_logs = db.prepare(`
+          SELECT id, tool_name, description, purpose, prompt_text, answer_text, duration_minutes, created_at
+          FROM ai_logs
+          WHERE assignment_id = ? AND student_id = ? AND is_simulated = 1
+          ORDER BY created_at ASC
+        `).all(id, student_id);
+
+        return {
+          student_id,
+          submission: submission || null,
+          ai_declaration: declaration || null,
+          manual_ai_logs: manual_logs,
+          simulated_ai_logs: simulated_logs
+        };
+      } catch (err) {
+        console.error(`Error processing student ${student_id}:`, err);
+        throw err;
+      }
+    });
+
+    console.log(`Successfully compiled logs for ${studentLogs.length} students`);
+
+    res.json({
+      assignment: {
+        id: assignment.id,
+        title: assignment.title,
+        description: assignment.description,
+        course_id: assignment.course_id,
+        created_at: assignment.created_at
+      },
+      student_submissions: studentLogs,
+      total_submissions: studentLogs.length
+    });
+  } catch (error) {
+    console.error('Error fetching student logs:', error);
+    res.status(500).json({ error: 'Failed to fetch student logs', details: error.message });
+  }
+});
+
+// Get AI logs and declarations for a specific student's assignment submission
+router.get('/:id/student-logs/:student_id', (req, res) => {
+  const { id, student_id } = req.params;
+
+  try {
+    // Get the submission
+    const submission = db.prepare(`
+      SELECT * FROM submissions
+      WHERE assignment_id = ? AND student_id = ?
+      ORDER BY submitted_at DESC
+      LIMIT 1
+    `).get(id, student_id);
+
+    if (!submission) {
+      return res.status(404).json({ error: 'Submission not found for this student and assignment' });
+    }
+
+    // Get AI declaration
+    const declaration = db.prepare(`
+      SELECT * FROM ai_declarations
+      WHERE assignment_id = ? AND student_id = ?
+      ORDER BY created_at DESC
+      LIMIT 1
+    `).get(id, student_id);
+
+    // Get manual AI logs
+    const manual_logs = db.prepare(`
+      SELECT id, tool_name, description, purpose, created_at
+      FROM ai_logs
+      WHERE assignment_id = ? AND student_id = ? AND is_simulated = 0
+      ORDER BY created_at ASC
+    `).all(id, student_id);
+
+    // Get simulated AI logs
+    const simulated_logs = db.prepare(`
+      SELECT id, tool_name, description, purpose, prompt_text, answer_text, duration_minutes, created_at
+      FROM ai_logs
+      WHERE assignment_id = ? AND student_id = ? AND is_simulated = 1
+      ORDER BY created_at ASC
+    `).all(id, student_id);
+
+    res.json({
+      submission,
+      ai_declaration: declaration || null,
+      manual_ai_logs: manual_logs,
+      simulated_ai_logs: simulated_logs
+    });
+  } catch (error) {
+    console.error('Error fetching student logs:', error);
+    res.status(500).json({ error: 'Failed to fetch student logs' });
+  }
+});
+
 module.exports = router;

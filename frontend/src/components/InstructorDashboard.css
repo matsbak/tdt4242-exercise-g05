@@ -135,10 +135,58 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.assignment-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.assignment-title-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
 .assignment-card h3 {
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   color: #333;
   font-size: 1.25rem;
+}
+
+.submission-count {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.view-logs-button {
+  padding: 0.5rem 1rem;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  height: fit-content;
+}
+
+.view-logs-button:hover {
+  background-color: #1976D2;
+}
+
+.view-logs-button:active {
+  background-color: #1565C0;
 }
 
 .assignment-card .course-id {
@@ -259,5 +307,19 @@
 
   .assignment-card {
     padding: 1rem;
+  }
+
+  .assignment-card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .assignment-title-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .view-logs-button {
+    width: 100%;
   }
 }

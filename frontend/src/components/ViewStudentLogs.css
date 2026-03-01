@@ -1,0 +1,357 @@
+.view-student-logs-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logs-header {
+  margin-bottom: 30px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 20px;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.close-button {
+  align-self: flex-start;
+  padding: 8px 16px;
+  background-color: #1565C0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.close-button:hover {
+  background-color: #1976D2;
+}
+
+.logs-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.assignment-info {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.logs-filter {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.filter-input {
+  flex: 1;
+  max-width: 300px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+.clear-filter-btn {
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.clear-filter-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.loading-message,
+.no-logs,
+.error-message,
+.no-logs-message {
+  padding: 20px;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  color: #666;
+  font-size: 16px;
+}
+
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  border: 1px solid #fcc;
+}
+
+.student-logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.student-log-card {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #fff;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s;
+}
+
+.student-log-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.student-header {
+  padding: 15px;
+  background-color: #f5f5f5;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.student-header:hover {
+  background-color: #eeeeee;
+}
+
+.student-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.student-id {
+  color: #2196F3;
+  font-size: 16px;
+}
+
+.submission-status {
+  color: #666;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.expand-icon {
+  color: #666;
+  transition: transform 0.2s;
+}
+
+.student-details {
+  padding: 20px;
+  background-color: #fafafa;
+}
+
+.submission-section,
+.declaration-section,
+.manual-logs-section,
+.simulated-logs-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 4px;
+  border-left: 4px solid #2196F3;
+}
+
+.submission-section {
+  border-left-color: #4CAF50;
+}
+
+.declaration-section {
+  border-left-color: #FF9800;
+}
+
+.manual-logs-section {
+  border-left-color: #9C27B0;
+}
+
+.simulated-logs-section {
+  border-left-color: #00BCD4;
+}
+
+.submission-section h4,
+.declaration-section h4,
+.manual-logs-section h4,
+.simulated-logs-section h4 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.submission-content,
+.declaration-content {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.submitted-date,
+.declaration-date {
+  color: #999;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.submission-text {
+  margin-top: 10px;
+}
+
+.submission-text .label {
+  font-weight: 600;
+  color: #333;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.submission-text .text-content {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 3px;
+  margin: 0;
+  color: #555;
+}
+
+.declaration-text {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 3px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0 0 10px 0;
+}
+
+.logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.log-entry {
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 3px;
+  border: 1px solid #eee;
+  font-size: 13px;
+}
+
+.log-entry.simulated {
+  background-color: #f0f8ff;
+  border-color: #cce5ff;
+}
+
+.log-header {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.log-number {
+  color: #999;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.tool-name {
+  font-weight: 600;
+  color: #333;
+  min-width: 100px;
+}
+
+.log-type-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.log-type-badge.manual {
+  background-color: #9C27B0;
+}
+
+.log-type-badge.simulated {
+  background-color: #00BCD4;
+}
+
+.log-detail {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.log-detail .label {
+  font-weight: 600;
+  color: #555;
+  min-width: 80px;
+}
+
+.log-detail .value {
+  color: #333;
+  flex: 1;
+  word-break: break-word;
+}
+
+.log-date {
+  color: #999;
+  font-size: 11px;
+  margin-top: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .view-student-logs-container {
+    padding: 10px;
+  }
+
+  .logs-header h2 {
+    font-size: 20px;
+  }
+
+  .student-header {
+    padding: 12px;
+  }
+
+  .student-title {
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start;
+  }
+
+  .student-details {
+    padding: 15px;
+  }
+
+  .log-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .logs-filter {
+    flex-direction: column;
+  }
+
+  .filter-input {
+    max-width: 100%;
+  }
+}
