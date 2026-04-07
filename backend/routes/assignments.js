@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import db from '../db.js';
+
 const router = express.Router();
-const db = require('../db');
 
 const SIMULATED_AI_USAGE_LOGS = [
   {
@@ -537,4 +538,4 @@ router.get('/:id/student-logs/:student_id', (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

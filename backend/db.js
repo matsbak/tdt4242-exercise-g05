@@ -1,7 +1,18 @@
-const Database = require('better-sqlite3');
-const path = require('path');
+import Database from 'better-sqlite3';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-const dbPath = path.join(__dirname, 'guidebook.db');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Use different database for tests
+const isTest = process.env.NODE_ENV === 'test';
+const dbPath = isTest 
+  ? path.join(__dirname, 'test.db')
+  : path.join(__dirname, 'guidebook.db');
+
 const db = new Database(dbPath);
 
 // Enable foreign keys
@@ -79,10 +90,28 @@ function ensureColumnExists(tableName, columnName, columnDefinition) {
   }
 }
 
+export function clearDatabase() {
+  db.exec('DELETE FROM submissions');
+  db.exec('DELETE FROM ai_logs');
+  db.exec('DELETE FROM ai_declarations');
+  db.exec('DELETE FROM assignments');
+}
+
+export function closeDatabase() {
+  db.close();
+}
+
+export function deleteTestDatabase() {
+  const testDbPath = path.join(__dirname, 'test.db');
+  if (fs.existsSync(testDbPath)) {
+    fs.unlinkSync(testDbPath);
+  }
+}
+
 initializeDatabase();
 ensureColumnExists('ai_logs', 'prompt_text', 'TEXT');
 ensureColumnExists('ai_logs', 'answer_text', 'TEXT');
 ensureColumnExists('ai_logs', 'is_simulated', 'BOOLEAN DEFAULT 0');
 ensureColumnExists('ai_logs', 'confirmed', 'BOOLEAN DEFAULT 1');
 
-module.exports = db;
+export default db;

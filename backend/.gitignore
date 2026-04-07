@@ -16,5 +16,8 @@ coverage
 # Benchmarking
 benchmarks/graphs
 
+# Test database
+test.db
+
 # ignore additional files using core.excludesFile
 # https://git-scm.com/docs/gitignore

@@ -12,21 +12,51 @@ The AI tool used for the exercise is [GitHub Copilot](https://github.com/feature
 Backend (integrated database):
 
 ```bash
-npm install
 cd backend
+npm install
 node index.js
 ```
 
 Frontend:
 
 ```bash
-npm install
 cd frontend
+npm install
 npm run dev
 ```
+
+### Running Tests
+
+Backend Integration Tests:
+
+```bash
+cd backend
+npm install
+npm test
+```
+
+Frontend Unit Tests:
+
+```bash
+cd frontend
+npm install
+npm test
+```
+
+System tests
+
+```bash
+cd frontend
+npm install
+npm test:e2e
+```
+
+Note: Make sure backend is already running in different terminal
 
 ### Technology stack
 
 - SQLite (better-sqlite3)
 - Express.js
 - React.js (Vite)
+- Vitest (Testing framework)
+- Supertest (HTTP assertions for integration tests)

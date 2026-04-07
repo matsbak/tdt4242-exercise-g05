@@ -1,57 +1,68 @@
-import { useState, useEffect } from 'react';
-import './StudentAssignmentSubmission.css';
+import { useState, useEffect } from "react";
+import "./StudentAssignmentSubmission.css";
 
 // Static simulated AI logs (identical for all students)
 const SIMULATED_AI_LOGS = [
   {
-    tool_name: 'ChatGPT',
-    description: 'Used to brainstorm solution structure for assignment tasks.',
-    purpose: 'Clarified possible implementation approaches before coding.',
-    prompt_text: 'How should I structure a React component that fetches assignment data and handles submission states?',
-    answer_text: 'Use useEffect for fetching, keep separate loading/error/success states, and submit through an async handler with guarded error handling.',
-    duration_minutes: 12
+    tool_name: "ChatGPT",
+    description: "Used to brainstorm solution structure for assignment tasks.",
+    purpose: "Clarified possible implementation approaches before coding.",
+    prompt_text:
+      "How should I structure a React component that fetches assignment data and handles submission states?",
+    answer_text:
+      "Use useEffect for fetching, keep separate loading/error/success states, and submit through an async handler with guarded error handling.",
+    duration_minutes: 12,
   },
   {
-    tool_name: 'GitHub Copilot',
-    description: 'Used while writing backend route handlers.',
-    purpose: 'Accelerated boilerplate creation and improved consistency in response handling.',
-    prompt_text: 'Generate an Express POST route for assignment submission with validation and JSON responses.',
-    answer_text: 'Provided a route skeleton with required field checks, database insert flow, and 4xx/5xx response patterns.',
-    duration_minutes: 8
+    tool_name: "GitHub Copilot",
+    description: "Used while writing backend route handlers.",
+    purpose:
+      "Accelerated boilerplate creation and improved consistency in response handling.",
+    prompt_text:
+      "Generate an Express POST route for assignment submission with validation and JSON responses.",
+    answer_text:
+      "Provided a route skeleton with required field checks, database insert flow, and 4xx/5xx response patterns.",
+    duration_minutes: 8,
   },
   {
-    tool_name: 'ChatGPT',
-    description: 'Used to review wording and clarity of the final submission text.',
-    purpose: 'Improved readability and confidence in the submitted explanation.',
-    prompt_text: 'Suggest concise wording for explaining implementation tradeoffs in a student assignment submission.',
-    answer_text: 'Use short sections: decision, reason, impact; avoid repeated wording and keep examples concrete.',
-    duration_minutes: 5
-  }
+    tool_name: "ChatGPT",
+    description:
+      "Used to review wording and clarity of the final submission text.",
+    purpose:
+      "Improved readability and confidence in the submitted explanation.",
+    prompt_text:
+      "Suggest concise wording for explaining implementation tradeoffs in a student assignment submission.",
+    answer_text:
+      "Use short sections: decision, reason, impact; avoid repeated wording and keep examples concrete.",
+    duration_minutes: 5,
+  },
 ];
 
 export default function StudentAssignmentSubmission() {
   const [assignments, setAssignments] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [studentId, setStudentId] = useState('student_001');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [studentId, setStudentId] = useState("student_001");
   const [submitted, setSubmitted] = useState(false);
   const [generatedLogs, setGeneratedLogs] = useState([]);
   const [manualLogs, setManualLogs] = useState([]);
   const [isReviewingLogs, setIsReviewingLogs] = useState(false);
-  const [confirmedAutoLogs, setConfirmedAutoLogs] = useState(new Set(SIMULATED_AI_LOGS.map((_, i) => i)));
-  const [aiDeclaration, setAiDeclaration] = useState('');
+  const [confirmedAutoLogs, setConfirmedAutoLogs] = useState(
+    new Set(SIMULATED_AI_LOGS.map((_, i) => i)),
+  );
+  const [aiDeclaration, setAiDeclaration] = useState("");
   const [acknowledgedDeclaration, setAcknowledgedDeclaration] = useState(false);
 
   const [formData, setFormData] = useState({
     ai_logs: [
       {
-        tool_name: '',
-        description: '',
-        purpose: ''
-      }
-    ]
+        tool_name: "",
+        description: "",
+        purpose: "",
+      },
+    ],
   });
 
   // Load assignments on mount
@@ -61,30 +72,30 @@ export default function StudentAssignmentSubmission() {
 
   const loadAssignments = async () => {
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch('/api/assignments');
-      const contentType = response.headers.get('content-type') || '';
-      const data = contentType.includes('application/json')
+      const response = await fetch("/api/assignments");
+      const contentType = response.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
         ? await response.json()
         : await response.text();
 
       if (!response.ok) {
         throw new Error(
-          typeof data === 'string'
+          typeof data === "string"
             ? `Failed to load assignments: ${data}`
-            : (data.error || 'Failed to load assignments')
+            : data.error || "Failed to load assignments",
         );
       }
 
-      if (typeof data === 'string') {
-        throw new Error('Unexpected response format while loading assignments');
+      if (typeof data === "string") {
+        throw new Error("Unexpected response format while loading assignments");
       }
 
       setAssignments(data);
     } catch (err) {
-      console.error('Error loading assignments:', err);
+      console.error("Error loading assignments:", err);
       setError(err.message);
     } finally {
       setIsLoading(false);
@@ -96,20 +107,20 @@ export default function StudentAssignmentSubmission() {
     setSubmitted(false);
     setGeneratedLogs([]);
     setManualLogs([]);
-    setSuccess('');
-    setError('');
+    setSuccess("");
+    setError("");
     setIsReviewingLogs(false);
     setConfirmedAutoLogs(new Set(SIMULATED_AI_LOGS.map((_, i) => i)));
-    setAiDeclaration('');
+    setAiDeclaration("");
     setAcknowledgedDeclaration(false);
     setFormData({
       ai_logs: [
         {
-          tool_name: '',
-          description: '',
-          purpose: ''
-        }
-      ]
+          tool_name: "",
+          description: "",
+          purpose: "",
+        },
+      ],
     });
   };
 
@@ -117,34 +128,34 @@ export default function StudentAssignmentSubmission() {
     const updatedLogs = [...formData.ai_logs];
     updatedLogs[index] = {
       ...updatedLogs[index],
-      [field]: value
+      [field]: value,
     };
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      ai_logs: updatedLogs
+      ai_logs: updatedLogs,
     }));
   };
 
   const addAILog = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       ai_logs: [
         ...prev.ai_logs,
         {
-          tool_name: '',
-          description: '',
-          purpose: ''
-        }
-      ]
+          tool_name: "",
+          description: "",
+          purpose: "",
+        },
+      ],
     }));
   };
 
   const removeAILog = (index) => {
     if (formData.ai_logs.length > 1) {
       const updatedLogs = formData.ai_logs.filter((_, i) => i !== index);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        ai_logs: updatedLogs
+        ai_logs: updatedLogs,
       }));
     }
   };
@@ -161,12 +172,14 @@ export default function StudentAssignmentSubmission() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     // Validate AI declaration is filled
     if (!aiDeclaration.trim()) {
-      setError('Please provide an AI declaration summarizing your AI usage for this assignment.');
+      setError(
+        "Please provide an AI declaration summarizing your AI usage for this assignment.",
+      );
       return;
     }
 
@@ -175,63 +188,74 @@ export default function StudentAssignmentSubmission() {
   };
 
   const handleConfirmAndSubmit = async () => {
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     // Validate AI declaration acknowledgment
     if (!acknowledgedDeclaration) {
-      setError('Please check the box to acknowledge your AI declaration before submitting.');
+      setError(
+        "Please check the box to acknowledge your AI declaration before submitting.",
+      );
       return;
     }
 
     setIsLoading(true);
 
     // Validate AI logs if any are being submitted
-    const validLogs = formData.ai_logs.filter(log => log.tool_name && log.tool_name.trim());
+    const validLogs = formData.ai_logs.filter(
+      (log) => log.tool_name && log.tool_name.trim(),
+    );
     const shouldConfirmAutoLogs = confirmedAutoLogs.size > 0;
 
     try {
-      const response = await fetch(`/api/assignments/${selectedAssignment.id}/submit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        `/api/assignments/${selectedAssignment.id}/submit`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            student_id: studentId,
+            ai_logs: validLogs,
+            confirmed_automatic_logs: shouldConfirmAutoLogs,
+            ai_declaration: aiDeclaration,
+          }),
         },
-        body: JSON.stringify({
-          student_id: studentId,
-          ai_logs: validLogs,
-          confirmed_automatic_logs: shouldConfirmAutoLogs,
-          ai_declaration: aiDeclaration
-        })
-      });
+      );
 
-      const contentType = response.headers.get('content-type') || '';
-      const data = contentType.includes('application/json')
+      const contentType = response.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
         ? await response.json()
         : await response.text();
 
       if (!response.ok) {
         throw new Error(
-          typeof data === 'string'
+          typeof data === "string"
             ? `Failed to submit assignment: ${data}`
-            : (data.error || 'Failed to submit assignment')
+            : data.error || "Failed to submit assignment",
         );
       }
 
-      if (typeof data === 'string') {
-        throw new Error('Unexpected response format while submitting assignment');
+      if (typeof data === "string") {
+        throw new Error(
+          "Unexpected response format while submitting assignment",
+        );
       }
 
       // Separate manual and simulated logs for display
       const manual = data.manual_ai_logs || [];
       const simulated = data.simulated_ai_logs || [];
-      
+
       setManualLogs(manual);
       setGeneratedLogs(simulated);
-      setSuccess(`Assignment "${selectedAssignment.title}" submitted successfully. ${manual.length} manual log(s) and ${simulated.length} confirmed AI usage log(s) were included in your submission.`);
+      setSuccess(
+        `Assignment "${selectedAssignment.title}" submitted successfully. ${manual.length} manual log(s) and ${simulated.length} confirmed AI usage log(s) were included in your submission.`,
+      );
       setSubmitted(true);
       setIsReviewingLogs(false);
     } catch (err) {
-      console.error('Error submitting assignment:', err);
+      console.error("Error submitting assignment:", err);
       setError(err.message);
       setIsReviewingLogs(false);
     } finally {
@@ -243,8 +267,8 @@ export default function StudentAssignmentSubmission() {
     setSelectedAssignment(null);
     setGeneratedLogs([]);
     setManualLogs([]);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
   };
 
   if (!selectedAssignment) {
@@ -271,7 +295,7 @@ export default function StudentAssignmentSubmission() {
           ) : assignments.length === 0 ? (
             <p className="no-content">No assignments available</p>
           ) : (
-            assignments.map(assignment => (
+            assignments.map((assignment) => (
               <div key={assignment.id} className="assignment-card">
                 <h3>{assignment.title}</h3>
                 <p className="course-id">Course: {assignment.course_id}</p>
@@ -300,8 +324,9 @@ export default function StudentAssignmentSubmission() {
           <div className="confirmation-header">
             <h2>Review & Confirm Automatic AI Usage Logs</h2>
             <p className="confirmation-description">
-              These automatic AI usage logs will be attached to your assignment submission. 
-              Please review them and confirm which ones are relevant to your work.
+              These automatic AI usage logs will be attached to your assignment
+              submission. Please review them and confirm which ones are relevant
+              to your work.
             </p>
           </div>
 
@@ -316,26 +341,37 @@ export default function StudentAssignmentSubmission() {
                     onChange={() => toggleAutoLogConfirmation(index)}
                     className="log-checkbox"
                   />
-                  <label htmlFor={`confirm-log-${index}`} className="log-checkbox-label">
+                  <label
+                    htmlFor={`confirm-log-${index}`}
+                    className="log-checkbox-label"
+                  >
                     <strong>{log.tool_name}</strong>
                     <span className="log-meta">{log.duration_minutes} min</span>
                   </label>
                 </div>
 
                 <div className="log-review-content">
-                  <p className="log-description"><strong>Context:</strong> {log.description}</p>
-                  
+                  <p className="log-description">
+                    <strong>Context:</strong> {log.description}
+                  </p>
+
                   <div className="interaction-block">
-                    <p className="interaction-label"><strong>Prompt:</strong></p>
+                    <p className="interaction-label">
+                      <strong>Prompt:</strong>
+                    </p>
                     <p className="interaction-text">{log.prompt_text}</p>
                   </div>
-                  
+
                   <div className="interaction-block">
-                    <p className="interaction-label"><strong>Answer:</strong></p>
+                    <p className="interaction-label">
+                      <strong>Answer:</strong>
+                    </p>
                     <p className="interaction-text">{log.answer_text}</p>
                   </div>
-                  
-                  <p className="log-purpose"><strong>Result:</strong> {log.purpose}</p>
+
+                  <p className="log-purpose">
+                    <strong>Result:</strong> {log.purpose}
+                  </p>
                 </div>
               </div>
             ))}
@@ -346,9 +382,7 @@ export default function StudentAssignmentSubmission() {
             <p className="section-description">
               Please review your AI declaration statement below:
             </p>
-            <div className="declaration-display">
-              {aiDeclaration}
-            </div>
+            <div className="declaration-display">{aiDeclaration}</div>
             <div className="declaration-acknowledgment">
               <label className="acknowledgment-checkbox-label">
                 <input
@@ -358,7 +392,8 @@ export default function StudentAssignmentSubmission() {
                   className="acknowledgment-checkbox"
                 />
                 <span className="acknowledgment-text">
-                  I acknowledge that this declaration accurately summarizes my AI usage for this assignment.
+                  I acknowledge that this declaration accurately summarizes my
+                  AI usage for this assignment.
                 </span>
               </label>
             </div>
@@ -379,7 +414,7 @@ export default function StudentAssignmentSubmission() {
               onClick={handleConfirmAndSubmit}
               disabled={isLoading}
             >
-              {isLoading ? 'Submitting...' : 'Confirm & Submit Assignment'}
+              {isLoading ? "Submitting..." : "Confirm & Submit Assignment"}
             </button>
           </div>
         </div>
@@ -406,9 +441,19 @@ export default function StudentAssignmentSubmission() {
 
               {manualLogs.map((log) => (
                 <div key={log.id} className="log-entry">
-                  <p><strong>Tool:</strong> {log.tool_name}</p>
-                  {log.description && <p><strong>Context:</strong> {log.description}</p>}
-                  {log.purpose && <p><strong>Results:</strong> {log.purpose}</p>}
+                  <p>
+                    <strong>Tool:</strong> {log.tool_name}
+                  </p>
+                  {log.description && (
+                    <p>
+                      <strong>Context:</strong> {log.description}
+                    </p>
+                  )}
+                  {log.purpose && (
+                    <p>
+                      <strong>Results:</strong> {log.purpose}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -418,14 +463,25 @@ export default function StudentAssignmentSubmission() {
             <div className="logs-container">
               <h2>Confirmed Automatic AI Usage Logs</h2>
               <p className="section-description">
-                These logs were confirmed during submission and included in your assignment.
+                These logs were confirmed during submission and included in your
+                assignment.
               </p>
 
               {generatedLogs.map((log) => (
                 <div key={log.id} className="log-entry">
-                  <p><strong>Tool:</strong> {log.tool_name}</p>
-                  {log.prompt_text && <p><strong>Prompt:</strong> {log.prompt_text}</p>}
-                  {log.answer_text && <p><strong>Answer:</strong> {log.answer_text}</p>}
+                  <p>
+                    <strong>Tool:</strong> {log.tool_name}
+                  </p>
+                  {log.prompt_text && (
+                    <p>
+                      <strong>Prompt:</strong> {log.prompt_text}
+                    </p>
+                  )}
+                  {log.answer_text && (
+                    <p>
+                      <strong>Answer:</strong> {log.answer_text}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -479,7 +535,9 @@ export default function StudentAssignmentSubmission() {
                   type="text"
                   id={`tool-name-${index}`}
                   value={log.tool_name}
-                  onChange={(e) => handleAILogChange(index, 'tool_name', e.target.value)}
+                  onChange={(e) =>
+                    handleAILogChange(index, "tool_name", e.target.value)
+                  }
                   placeholder="e.g., ChatGPT, GitHub Copilot, Claude, etc."
                 />
               </div>
@@ -489,7 +547,9 @@ export default function StudentAssignmentSubmission() {
                 <textarea
                   id={`context-${index}`}
                   value={log.description}
-                  onChange={(e) => handleAILogChange(index, 'description', e.target.value)}
+                  onChange={(e) =>
+                    handleAILogChange(index, "description", e.target.value)
+                  }
                   placeholder="What was the context? (e.g., debugging code, writing documentation, etc.)"
                   rows="3"
                 />
@@ -500,7 +560,9 @@ export default function StudentAssignmentSubmission() {
                 <textarea
                   id={`purpose-${index}`}
                   value={log.purpose}
-                  onChange={(e) => handleAILogChange(index, 'purpose', e.target.value)}
+                  onChange={(e) =>
+                    handleAILogChange(index, "purpose", e.target.value)
+                  }
                   placeholder="What were the results? How did the AI tool help? What did you use from the output?"
                   rows="3"
                 />
@@ -518,11 +580,7 @@ export default function StudentAssignmentSubmission() {
             </div>
           ))}
 
-          <button
-            type="button"
-            className="add-log-button"
-            onClick={addAILog}
-          >
+          <button type="button" className="add-log-button" onClick={addAILog}>
             + Add Another AI Usage Log
           </button>
         </div>
@@ -531,9 +589,10 @@ export default function StudentAssignmentSubmission() {
           <div className="ai-declaration-section">
             <h2>AI Declaration (Required)</h2>
             <p className="section-description">
-              Provide a summary statement of your total AI usage for this assignment. 
-              This should summarize how you used AI tools, what assistance they provided, 
-              and how you integrated or evaluated their output.
+              Provide a summary statement of your total AI usage for this
+              assignment. This should summarize how you used AI tools, what
+              assistance they provided, and how you integrated or evaluated
+              their output.
             </p>
             <textarea
               id="ai-declaration"
@@ -542,7 +601,6 @@ export default function StudentAssignmentSubmission() {
               onChange={(e) => setAiDeclaration(e.target.value)}
               placeholder="Example: I used ChatGPT to help structure my code components and GitHub Copilot for code completion. I reviewed all AI-generated suggestions and tested them thoroughly before including them in my work. I also used ChatGPT to help improve my documentation clarity."
               rows="6"
-              required
             />
           </div>
         </div>
@@ -551,31 +609,40 @@ export default function StudentAssignmentSubmission() {
           <div className="auto-logs-section">
             <h2>Automatic AI Usage Logs Preview</h2>
             <p className="section-description">
-              These automatic AI usage logs will be shown for review when you submit your assignment. 
-              You will be able to confirm which ones to include in your submission.
+              These automatic AI usage logs will be shown for review when you
+              submit your assignment. You will be able to confirm which ones to
+              include in your submission.
             </p>
-            
+
             {SIMULATED_AI_LOGS.map((log, index) => (
               <div key={index} className="simulated-log-display">
                 <div className="log-header">
                   <strong>{log.tool_name}</strong>
                   <span className="log-meta">{log.duration_minutes} min</span>
                 </div>
-                
+
                 <div className="log-content">
-                  <p className="log-description"><strong>Context:</strong> {log.description}</p>
-                  
+                  <p className="log-description">
+                    <strong>Context:</strong> {log.description}
+                  </p>
+
                   <div className="interaction-block">
-                    <p className="interaction-label"><strong>Prompt:</strong></p>
+                    <p className="interaction-label">
+                      <strong>Prompt:</strong>
+                    </p>
                     <p className="interaction-text">{log.prompt_text}</p>
                   </div>
-                  
+
                   <div className="interaction-block">
-                    <p className="interaction-label"><strong>Answer:</strong></p>
+                    <p className="interaction-label">
+                      <strong>Answer:</strong>
+                    </p>
                     <p className="interaction-text">{log.answer_text}</p>
                   </div>
-                  
-                  <p className="log-purpose"><strong>Result:</strong> {log.purpose}</p>
+
+                  <p className="log-purpose">
+                    <strong>Result:</strong> {log.purpose}
+                  </p>
                 </div>
               </div>
             ))}
@@ -583,7 +650,7 @@ export default function StudentAssignmentSubmission() {
         </div>
 
         <button type="submit" disabled={isLoading} className="submit-button">
-          {isLoading ? 'Processing...' : 'Review & Confirm Logs'}
+          {isLoading ? "Processing..." : "Review & Confirm Logs"}
         </button>
       </form>
     </div>

@@ -1,0 +1,223 @@
+{
+  "timestamp": "2026-04-07T19:20:48.781Z",
+  "api": {
+    "type": "api_post",
+    "endpoint": "/api/assignments/101/submit",
+    "iterations": 20,
+    "raw": [
+      {
+        "iteration": 0,
+        "ms": 3,
+        "status": 404
+      },
+      {
+        "iteration": 1,
+        "ms": 4,
+        "status": 404
+      },
+      {
+        "iteration": 2,
+        "ms": 4,
+        "status": 404
+      },
+      {
+        "iteration": 3,
+        "ms": 6,
+        "status": 404
+      },
+      {
+        "iteration": 4,
+        "ms": 6,
+        "status": 404
+      },
+      {
+        "iteration": 5,
+        "ms": 5,
+        "status": 404
+      },
+      {
+        "iteration": 6,
+        "ms": 4,
+        "status": 404
+      },
+      {
+        "iteration": 7,
+        "ms": 4,
+        "status": 404
+      },
+      {
+        "iteration": 8,
+        "ms": 4,
+        "status": 404
+      },
+      {
+        "iteration": 9,
+        "ms": 4,
+        "status": 404
+      },
+      {
+        "iteration": 10,
+        "ms": 6,
+        "status": 404
+      },
+      {
+        "iteration": 11,
+        "ms": 7,
+        "status": 404
+      },
+      {
+        "iteration": 12,
+        "ms": 5,
+        "status": 404
+      },
+      {
+        "iteration": 13,
+        "ms": 6,
+        "status": 404
+      },
+      {
+        "iteration": 14,
+        "ms": 4,
+        "status": 404
+      },
+      {
+        "iteration": 15,
+        "ms": 11,
+        "status": 404
+      },
+      {
+        "iteration": 16,
+        "ms": 4,
+        "status": 404
+      },
+      {
+        "iteration": 17,
+        "ms": 4,
+        "status": 404
+      },
+      {
+        "iteration": 18,
+        "ms": 4,
+        "status": 404
+      },
+      {
+        "iteration": 19,
+        "ms": 4,
+        "status": 404
+      }
+    ],
+    "stats": {
+      "p50": 4,
+      "p95": 7.200000000000003,
+      "max": 11,
+      "unit": "ms"
+    },
+    "threshold_ms": 500,
+    "pass": true
+  },
+  "navigation": {
+    "type": "navigation",
+    "url": "/",
+    "iterations": 10,
+    "raw": [
+      {
+        "iteration": 0,
+        "ms": 94,
+        "perfEntry": {
+          "domContentLoaded": 0,
+          "load": 92,
+          "type": "navigate"
+        }
+      },
+      {
+        "iteration": 1,
+        "ms": 98,
+        "perfEntry": {
+          "domContentLoaded": 0,
+          "load": 92,
+          "type": "navigate"
+        }
+      },
+      {
+        "iteration": 2,
+        "ms": 98,
+        "perfEntry": {
+          "domContentLoaded": 0,
+          "load": 95,
+          "type": "navigate"
+        }
+      },
+      {
+        "iteration": 3,
+        "ms": 96,
+        "perfEntry": {
+          "domContentLoaded": 0,
+          "load": 93,
+          "type": "navigate"
+        }
+      },
+      {
+        "iteration": 4,
+        "ms": 98,
+        "perfEntry": {
+          "domContentLoaded": 0,
+          "load": 93,
+          "type": "navigate"
+        }
+      },
+      {
+        "iteration": 5,
+        "ms": 113,
+        "perfEntry": {
+          "domContentLoaded": 0,
+          "load": 108,
+          "type": "navigate"
+        }
+      },
+      {
+        "iteration": 6,
+        "ms": 97,
+        "perfEntry": {
+          "domContentLoaded": 0,
+          "load": 94,
+          "type": "navigate"
+        }
+      },
+      {
+        "iteration": 7,
+        "ms": 112,
+        "perfEntry": {
+          "domContentLoaded": 0,
+          "load": 106,
+          "type": "navigate"
+        }
+      },
+      {
+        "iteration": 8,
+        "ms": 97,
+        "perfEntry": {
+          "domContentLoaded": 0,
+          "load": 93,
+          "type": "navigate"
+        }
+      },
+      {
+        "iteration": 9,
+        "ms": 97,
+        "perfEntry": {
+          "domContentLoaded": 0,
+          "load": 94,
+          "type": "navigate"
+        }
+      }
+    ],
+    "stats": {
+      "p50": 97.5,
+      "p95": 112.55,
+      "max": 113,
+      "unit": "ms"
+    },
+    "threshold_ms": 500,
+    "pass": true
+  }
+}
