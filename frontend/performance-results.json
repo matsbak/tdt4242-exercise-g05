@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-07T19:20:48.781Z",
+  "timestamp": "2026-04-07T21:14:28.785Z",
   "api": {
     "type": "api_post",
     "endpoint": "/api/assignments/101/submit",
@@ -7,7 +7,7 @@
     "raw": [
       {
         "iteration": 0,
-        "ms": 3,
+        "ms": 5,
         "status": 404
       },
       {
@@ -17,7 +17,7 @@
       },
       {
         "iteration": 2,
-        "ms": 4,
+        "ms": 7,
         "status": 404
       },
       {
@@ -27,7 +27,7 @@
       },
       {
         "iteration": 4,
-        "ms": 6,
+        "ms": 5,
         "status": 404
       },
       {
@@ -52,7 +52,7 @@
       },
       {
         "iteration": 9,
-        "ms": 4,
+        "ms": 9,
         "status": 404
       },
       {
@@ -62,37 +62,37 @@
       },
       {
         "iteration": 11,
-        "ms": 7,
-        "status": 404
-      },
-      {
-        "iteration": 12,
         "ms": 5,
         "status": 404
       },
       {
+        "iteration": 12,
+        "ms": 4,
+        "status": 404
+      },
+      {
         "iteration": 13,
-        "ms": 6,
+        "ms": 7,
         "status": 404
       },
       {
         "iteration": 14,
-        "ms": 4,
+        "ms": 7,
         "status": 404
       },
       {
         "iteration": 15,
-        "ms": 11,
+        "ms": 4,
         "status": 404
       },
       {
         "iteration": 16,
-        "ms": 4,
+        "ms": 3,
         "status": 404
       },
       {
         "iteration": 17,
-        "ms": 4,
+        "ms": 5,
         "status": 404
       },
       {
@@ -102,14 +102,14 @@
       },
       {
         "iteration": 19,
-        "ms": 4,
+        "ms": 7,
         "status": 404
       }
     ],
     "stats": {
-      "p50": 4,
-      "p95": 7.200000000000003,
-      "max": 11,
+      "p50": 5,
+      "p95": 7.100000000000001,
+      "max": 9,
       "unit": "ms"
     },
     "threshold_ms": 500,
@@ -122,28 +122,28 @@
     "raw": [
       {
         "iteration": 0,
-        "ms": 94,
+        "ms": 106,
         "perfEntry": {
           "domContentLoaded": 0,
-          "load": 92,
+          "load": 102.00000000000001,
           "type": "navigate"
         }
       },
       {
         "iteration": 1,
-        "ms": 98,
+        "ms": 97,
         "perfEntry": {
           "domContentLoaded": 0,
-          "load": 92,
+          "load": 91,
           "type": "navigate"
         }
       },
       {
         "iteration": 2,
-        "ms": 98,
+        "ms": 112,
         "perfEntry": {
           "domContentLoaded": 0,
-          "load": 95,
+          "load": 107,
           "type": "navigate"
         }
       },
@@ -158,7 +158,7 @@
       },
       {
         "iteration": 4,
-        "ms": 98,
+        "ms": 96,
         "perfEntry": {
           "domContentLoaded": 0,
           "load": 93,
@@ -167,54 +167,54 @@
       },
       {
         "iteration": 5,
-        "ms": 113,
+        "ms": 130,
         "perfEntry": {
           "domContentLoaded": 0,
-          "load": 108,
+          "load": 125,
           "type": "navigate"
         }
       },
       {
         "iteration": 6,
-        "ms": 97,
+        "ms": 112,
         "perfEntry": {
           "domContentLoaded": 0,
-          "load": 94,
+          "load": 105,
           "type": "navigate"
         }
       },
       {
         "iteration": 7,
-        "ms": 112,
+        "ms": 93,
         "perfEntry": {
           "domContentLoaded": 0,
-          "load": 106,
+          "load": 90,
           "type": "navigate"
         }
       },
       {
         "iteration": 8,
-        "ms": 97,
+        "ms": 96,
         "perfEntry": {
           "domContentLoaded": 0,
-          "load": 93,
+          "load": 92,
           "type": "navigate"
         }
       },
       {
         "iteration": 9,
-        "ms": 97,
+        "ms": 129,
         "perfEntry": {
           "domContentLoaded": 0,
-          "load": 94,
+          "load": 120,
           "type": "navigate"
         }
       }
     ],
     "stats": {
-      "p50": 97.5,
-      "p95": 112.55,
-      "max": 113,
+      "p50": 101.5,
+      "p95": 129.55,
+      "max": 130,
       "unit": "ms"
     },
     "threshold_ms": 500,
